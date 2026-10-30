@@ -1,49 +1,97 @@
 # 📄 Smart PDF Assistant – AI-Powered PDF Question Answering System
 
-An AI-powered PDF assistant that allows users to upload PDF documents and interact with their contents through natural language conversations. Built using **Retrieval-Augmented Generation (RAG)**, the application retrieves relevant information from uploaded documents and generates context-aware responses using Large Language Models (LLMs).
+# 📚 AI-Powered PDF Assistant using Retrieval-Augmented Generation (RAG)
+
+An intelligent PDF Question Answering System that allows users to interact with PDF documents through natural language conversations. The application uses **Retrieval-Augmented Generation (RAG)** to retrieve relevant information from documents and generate context-aware responses using Google's Gemini 2.5 Pro.
+
+Built using LangChain, HuggingFace embeddings, ChromaDB, and Gradio, the system provides an interactive way to search, understand, and extract information from PDF documents.
 
 ## 🚀 Features
 
-- **PDF Upload:** Upload and process PDF documents for analysis.
-- **Natural Language Queries:** Ask questions about the uploaded documents in plain English.
-- **Retrieval-Augmented Generation (RAG):** Retrieves relevant document chunks to generate accurate, context-aware answers.
-- **Semantic Search:** Uses HuggingFace sentence embeddings to understand the meaning of queries.
-- **Vector Database:** Stores and retrieves document embeddings efficiently using FAISS.
-- **Conversational Interface:** Interact with PDF documents through an intuitive chatbot interface.
-- **Context-Aware Responses:** Generates answers based on the information available in the uploaded documents.
+- **PDF Document Processing:** Automatically loads and processes multiple PDF documents from a specified directory.
+- **Natural Language Question Answering:** Ask questions about document contents using conversational language.
+- **Retrieval-Augmented Generation (RAG):** Retrieves relevant document chunks to provide context-aware answers.
+- **Semantic Search:** Uses HuggingFace sentence embeddings to identify relevant information based on meaning.
+- **Vector Database:** Stores document embeddings persistently using ChromaDB.
+- **LLM Integration:** Uses Google Gemini 2.5 Pro to generate responses based on retrieved document context.
+- **Conversational Interface:** Provides an interactive chatbot interface using Gradio.
+- **Streaming Responses:** Displays AI-generated answers progressively as they are generated.
 
 ## 🛠️ Tech Stack
 
 | Technology | Purpose |
 |---|---|
 | Python | Core programming language |
-| Streamlit | Interactive web interface |
-| LangChain | RAG pipeline and LLM integration |
-| HuggingFace Embeddings | Text embedding generation |
-| FAISS | Vector storage and similarity search |
-| Google Gemini | LLM-based response generation |
-| PyPDF | PDF text extraction |
+| LangChain | RAG pipeline and document processing |
+| Gradio | Interactive chatbot interface |
+| Google Gemini 2.5 Pro | Natural language response generation |
+| HuggingFace Embeddings | Semantic text representation |
+| ChromaDB | Persistent vector database |
+| PyPDF | PDF document loading and extraction |
+| Sentence Transformers | Embedding generation |
 
 ## 🏗️ System Architecture
 
-The application follows a Retrieval-Augmented Generation (RAG) workflow:
+The application follows a Retrieval-Augmented Generation (RAG) architecture consisting of two major stages.
 
-1. **PDF Upload:** The user uploads a PDF document.
-2. **Text Extraction:** Extracts textual content from the uploaded PDF.
-3. **Text Chunking:** Splits extracted text into smaller, manageable chunks.
-4. **Embedding Generation:** Converts text chunks into vector embeddings using HuggingFace.
-5. **Vector Storage:** Stores embeddings in a FAISS vector database.
-6. **Similarity Search:** Retrieves the most relevant document chunks based on the user's question.
-7. **Answer Generation:** Passes the retrieved context and user query to Google Gemini.
-8. **Response Display:** Displays the generated answer through the Streamlit interface.
+### 1. Document Ingestion Pipeline
+
+1. **PDF Loading:** Loads PDF documents from the `data` directory using PyPDFDirectoryLoader.
+2. **Text Extraction:** Extracts textual content from the uploaded PDF documents.
+3. **Text Chunking:** Splits extracted text into smaller chunks using RecursiveCharacterTextSplitter.
+4. **Embedding Generation:** Converts document chunks into numerical vectors using HuggingFace's `all-MiniLM-L6-v2` model.
+5. **Vector Storage:** Stores document embeddings in ChromaDB for persistent retrieval.
+
+### 2. Question Answering Pipeline
+
+1. **User Query:** The user submits a question through the Gradio chatbot.
+2. **Similarity Search:** The retriever searches ChromaDB for the five most relevant document chunks.
+3. **Context Retrieval:** Retrieved document contents are combined into contextual knowledge.
+4. **Prompt Construction:** The user query, conversation history, and retrieved context are passed into the RAG prompt.
+5. **Response Generation:** Google Gemini 2.5 Pro generates an answer using the retrieved information.
+6. **Streaming Output:** The generated response is progressively displayed in the Gradio interface.
+
+## 📂 Project Structure
+
+```text
+RAG-Final2/
+│
+├── data/
+│   ├── document1.pdf
+│   ├── document2.pdf
+│   └── ...
+│
+├── chroma_db/
+│   └── Persistent vector database
+│
+├── chatbot.py
+│   └── Gradio chatbot and RAG pipeline
+│
+├── ingest_database.py
+│   └── PDF processing and database creation
+│
+├── .env
+│   └── Google Gemini API configuration
+│
+├── requirements.txt
+│   └── Project dependencies
+│
+└── README.md
+```
 
 ## ⚙️ Installation and Setup
+
+### Prerequisites
+
+- Python 3.10 or later
+- Google Gemini API Key
+- Internet connection for downloading the embedding model and accessing Gemini
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/smart-pdf-assistant.git
-cd smart-pdf-assistant
+git clone https://github.com/your-username/RAG-Final2.git
+cd RAG-Final2
 ```
 
 ### 2. Create a Virtual Environment
@@ -70,65 +118,57 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Configure API Key
+### 4. Configure the Gemini API Key
 
 Obtain a Google Gemini API key from [Google AI Studio](https://aistudio.google.com/).
 
-Configure your API key using Streamlit secrets or an environment variable.
+Create a `.env` file in the project root directory:
 
-For Streamlit secrets, create:
-
-`.streamlit/secrets.toml`
-
-```toml
-GOOGLE_API_KEY = "your_api_key_here"
+```env
+GOOGLE_API_KEY=your_google_gemini_api_key
 ```
 
-Do not upload API keys or secrets to GitHub.
+### 5. Add PDF Documents
 
-### 5. Run the Application
+Place the PDF documents you want to analyze inside the `data/` directory.
+
+### 6. Create the Vector Database
+
+Run the document ingestion script:
 
 ```bash
-streamlit run app.py
+python ingest_database.py
 ```
 
-The application will be available at:
+This extracts the PDF content, generates embeddings, and stores them in ChromaDB.
 
-```text
-http://localhost:8501
+### 7. Launch the Chatbot
+
+Run the application:
+
+```bash
+python chatbot.py
 ```
 
-## 📂 Project Structure
+Gradio will launch the chatbot interface and provide a local URL to access the application.
 
-```text
-Smart-PDF-Assistant/
-│
-├── app.py                  # Main Streamlit application
-├── requirements.txt        # Project dependencies
-├── .streamlit/
-│   └── secrets.toml        # API configuration (not committed)
-├── .gitignore              # Files excluded from Git
-└── README.md               # Project documentation
-```
+## 🧠 Key Concepts Implemented
 
-*Note: Adjust the structure according to your actual repository.*
-
-## 🔑 Key Concepts Used
-
-- **Retrieval-Augmented Generation (RAG):** Combines information retrieval with LLM-based text generation.
-- **Text Embeddings:** Represents textual information as numerical vectors.
-- **Vector Similarity Search:** Finds relevant document sections based on semantic similarity.
-- **Large Language Models:** Uses Google Gemini to generate natural language responses.
-- **Natural Language Processing:** Enables users to interact with document content conversationally.
+- **Retrieval-Augmented Generation (RAG):** Combines document retrieval with large language model generation.
+- **Semantic Embeddings:** Converts text into numerical vector representations.
+- **Vector Similarity Search:** Retrieves relevant document chunks based on semantic similarity.
+- **Text Chunking:** Breaks large documents into smaller, searchable segments.
+- **Prompt Engineering:** Combines user queries, conversation history, and retrieved context to guide LLM responses.
+- **Persistent Storage:** Maintains document embeddings using ChromaDB.
 
 ## 🔮 Future Enhancements
 
-- Support for multiple PDF uploads.
-- Chat history and conversational memory.
-- Source citations with page numbers.
 - Support for additional document formats such as DOCX and TXT.
-- Improved retrieval accuracy through advanced chunking and reranking.
-- Option to integrate locally hosted LLMs.
+- Multiple PDF uploads through the chatbot interface.
+- Source citations with document names and page numbers.
+- Improved retrieval accuracy through reranking techniques.
+- Enhanced conversational memory.
+- Support for locally hosted open-source LLMs.
 
 ## 👨‍💻 Author
 
@@ -138,4 +178,4 @@ B.Tech – Computer Science and Engineering
 
 ---
 
-⭐ If you find this project useful, consider giving it a star!
+⭐ If you find this project interesting, consider giving the repository a star!
