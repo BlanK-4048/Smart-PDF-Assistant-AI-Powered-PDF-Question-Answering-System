@@ -1,0 +1,9 @@
+
+langchain-google-genai
+langchain-community
+langchain-chroma
+langchain-text-splitters
+gradio
+python-dotenv
+sentence-transformers
+pypdf
